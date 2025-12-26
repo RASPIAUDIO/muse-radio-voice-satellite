@@ -10,7 +10,7 @@ esphome:
   name_add_mac_suffix: false
   project:
     name: raspiaudio.voice-assistant
-    version: "2025.3.2"
+    version: "2025.3.3"
   on_boot:
     - priority: 800
       then:
@@ -1507,11 +1507,13 @@ sensor:
         pullup: true
     on_anticlockwise:
       then:
+#        - delay: 400ms
         - script.execute:
             id: adjust_volume
             delta: -0.05
     on_clockwise:
       then:
+#        - delay: 400ms
         - script.execute:
             id: adjust_volume
             delta: 0.05
@@ -2024,37 +2026,60 @@ script:
            id(my_es8388).write_byte(0x04, 0x0C);
 
   - id: adjust_volume
-    mode: parallel
+#    mode: parallel
     parameters:
       delta: float
     then:
       - light.turn_on: screen_backlight
       - lambda: |-
-          id(lightTO) = 0;
-          id(Vol) += delta;
+          id(lightTO) = 0;          
+          float scale = 1.0f;
+          
+          if(id(Vol) < 0.03f) scale = 0.05f;
+          else if(id(Vol) < 0.05f) scale = 0.40f;
+          else if(id(Vol) < 0.3f) scale = 0.50f;
+          else if(id(Vol) < 0.5f) scale = 0.60f;
+
+          id(Vol) += delta * scale;
           if (id(Vol) < 0) id(Vol) = 0;
           if (id(Vol) > 1) id(Vol) = 1;
           id(volume_display_active) = true;
           id(volume_display_timer) = 0;
           id(mute) = false;
+          int v = id(Vol) * 10;
+          if(id(Vol) < 0.1f)
+          {
+             id(my_es8388).write_byte(46, 23 + v);
+             id(my_es8388).write_byte(47, 23 + v);          
+             id(my_es8388).write_byte(48, 23 + v);          
+             id(my_es8388).write_byte(49, 23 + v);          
+          }
+          else
+          {
+             id(my_es8388).write_byte(46, 33);
+             id(my_es8388).write_byte(47, 33);          
+             id(my_es8388).write_byte(48, 33);          
+             id(my_es8388).write_byte(49, 33);        
+           }               
+          
       - media_player.volume_set:
           id: speaker_media_player
           volume: !lambda return id(Vol);
-      - delay: 400ms
+      - delay: 200ms
       - script.execute: schedule_volume_update
       - script.execute: reset_display
 
   - id: schedule_volume_update
-    mode: restart
+#    mode: restart
     then:
-      - delay: 400ms
+#      - delay: 400ms
       - lambda: |-
           if (id(volume_display_active) && id(myDisplay).is_ready()) {
             id(myDisplay).update();
           }
 
   - id: reset_display
-    mode: restart
+#    mode: restart
     then: 
        - logger.log: "===> reset_display" 
        - lambda: |-

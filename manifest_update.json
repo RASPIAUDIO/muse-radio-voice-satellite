@@ -1,14 +1,14 @@
 {
   "name": "raspiaudio.voice-assistant",
-  "version": "2025.3.2",
+  "version": "2025.3.3",
   "builds": [
     {
       "chipFamily": "ESP32-S3",
       "ota": {
-         "md5": "74113adc03e383c4ece65bd1a233606a",  
+         "md5": "5eabf5228b76573bc2724608be4106aa",  
          "path": "https://raw.githubusercontent.com/RASPIAUDIO/muse-radio-voice-satellite/main/update_firmware.bin",
          "offset": 0,
-         "summary": "Latest firmware: improved WiFi management / improved display"
+         "summary": "Latest firmware: improved volume control"
          }
     }
     ]     
