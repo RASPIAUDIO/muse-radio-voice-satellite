@@ -10,7 +10,7 @@ esphome:
   name_add_mac_suffix: false
   project:
     name: raspiaudio.voice-assistant
-    version: "2025.3.3"
+    version: "2025.3.4"
   on_boot:
     - priority: 800
       then:
@@ -2046,7 +2046,7 @@ script:
           id(volume_display_active) = true;
           id(volume_display_timer) = 0;
           id(mute) = false;
-          int v = id(Vol) * 10;
+          int v = id(Vol) * 100;
           if(id(Vol) < 0.1f)
           {
              id(my_es8388).write_byte(46, 23 + v);
